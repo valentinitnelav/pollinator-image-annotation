@@ -61,6 +61,8 @@ See more details about defining attributes for your custom template at [Creating
 
 # To add
 
-- a guide about how to use the VGG VIA annotation tool, 
-- a script example about how to convert from the JSON file format given by VIA to spreadsheets,
-- the scripts needed to build any tables and figures in the final manuscript.
+- [x] a guide about how to use the VGG VIA annotation tool. DONE: see section Annotation with VGG Image Annotator (VIA)
+- [ ] a script example about how to convert from the JSON file format given by VIA to spreadsheets,
+      - Use the scripts from local repo Nextcloud/annotation-converters/R/; for Python example see Dropbox - /insect-detection/mobile_pollinator_id/sequence_predictions/utils.py
+- [ ] the scripts needed to build any tables and figures in the final manuscript.
+      - adapt from local repo /Nextcloud/paper_img_with_phones/analysis/
