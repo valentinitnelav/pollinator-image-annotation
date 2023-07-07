@@ -53,7 +53,7 @@ Existing attributes within our JSON template project file can be modified as nee
 
 ![image](https://github.com/valentinitnelav/pollinator-image-annotation/assets/14074269/944f3666-3e9a-4344-b745-5f481135de18)
 
-See more details aout definng attributes for your custom template at [Creating Annotations : VIA User Guide][3]
+See more details about defining attributes for your custom template at [Creating Annotations : VIA User Guide][3]
 
 [1]: https://www.robots.ox.ac.uk/~vgg/software/via/
 [2]: https://www.robots.ox.ac.uk/~vgg/software/via/via_demo.html
