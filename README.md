@@ -41,13 +41,17 @@ Bear in mind that the JSON file is stored locally in your computer's default Dow
 
 The software doesn't auto-save, so in case of potential crashes - although rare with VIA - make a habit of saving your work frequently.
 
-Extra notes:
+### Extra notes:
 
 The 'attribute table' below the image can be toggled on or off using the 'spacebar'. A list of keyboard shortcuts is available on the left side of the VIA app. Remember, 'region' refers to a 'box' in the image.
 
 Each row in the attribute table corresponds to a box. If you need to delete boxes, select the box in the image and press 'd'. To delete all boxes, press 'a' and then 'd'.
 
 Zooming in can be also achieved by hovering the mouse pointer over the image (not the page frame), holding 'CTRL', and scrolling the mouse. This is the same as zooming in on a webpage, but ensure the mouse is over the image. If the mouse hovers over the page frame, the entire page will zoom. To reset the zoom, press 'CTRL + 0'.
+
+Existing attributes within our JSON template project file can be modified as needed. If there are missing orders, you can update the template by adding new option IDs to the 'order' dropdown attribute:
+
+![image](https://github.com/valentinitnelav/pollinator-image-annotation/assets/14074269/944f3666-3e9a-4344-b745-5f481135de18)
 
 [1]: https://www.robots.ox.ac.uk/~vgg/software/via/
 [2]: https://www.robots.ox.ac.uk/~vgg/software/via/via_demo.html
