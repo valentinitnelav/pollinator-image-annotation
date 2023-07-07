@@ -4,7 +4,7 @@
 
 During the manual annotation process, we utilized the freely available, open-source [VGG Image Annotator (VIA)][1] to enclose any detected insect within a tightly-fitted bounding box and documented its taxonomic order. 
 
-An online demo of the annotation tool can be found at [this link][2]. Below we present our worflow.
+An online demo of the annotation tool can be found at [this link][2]. Below we present our worflow. Readers are encouraged to also consult the detailed 'User Guide' section of the [VGG Image Annotator (VIA)][1] for more instructions.
 
 We annotated each "plant-folder" with its own JSON file created by the VIA application.
 
@@ -53,9 +53,11 @@ Existing attributes within our JSON template project file can be modified as nee
 
 ![image](https://github.com/valentinitnelav/pollinator-image-annotation/assets/14074269/944f3666-3e9a-4344-b745-5f481135de18)
 
+See more details aout definng attributes for your custom template at [Creating Annotations : VIA User Guide][3]
+
 [1]: https://www.robots.ox.ac.uk/~vgg/software/via/
 [2]: https://www.robots.ox.ac.uk/~vgg/software/via/via_demo.html
-
+[3]: https://www.robots.ox.ac.uk/~vgg/software/via/docs/creating_annotations.html
 
 # To add
 
