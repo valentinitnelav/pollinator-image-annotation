@@ -4,7 +4,7 @@
 
 During the manual annotation process, we utilized the freely available, open-source [VGG Image Annotator (VIA)][1] to enclose any detected insect within a tightly-fitted bounding box and documented its taxonomic order. 
 
-An online demo of the annotation tool can be found at [this link][2]. Below we present our worflow. Readers are encouraged to also consult the detailed 'User Guide' section of the [VGG Image Annotator (VIA)][1] for more instructions.
+An online demo of the annotation tool can be found at [this link][2]. Below we present our workflow. Readers are encouraged to also consult the detailed 'User Guide' section of the [VGG Image Annotator (VIA)][1] for more instructions.
 
 We annotated each "plant-folder" with its own JSON file created by the VIA application.
 
@@ -12,7 +12,7 @@ Once you open the via.html file (e.g. double click), the software runs directly 
 
 ![image](https://github.com/valentinitnelav/pollinator-image-annotation/assets/14074269/d839a2c2-d17f-4b72-bb16-b9798692ca9d)
 
-For each plant folder, load the empty JSON template (field_img_template_11_01_2022.json) with predifined attribute tables. 
+For each plant folder, load the empty JSON template (see `./data/via_annotation_project_template.json`) with predefined attribute tables. 
 In the via app, go to menu `Project` then select `Load`, like below:
 
 ![image](https://github.com/valentinitnelav/pollinator-image-annotation/assets/14074269/1097c159-e5e3-4530-941d-29f15bdd8433)
@@ -64,7 +64,7 @@ See more details about defining attributes for your custom template at [Creating
 - [x] a guide about how to use the VGG VIA annotation tool. DONE: see section Annotation with VGG Image Annotator (VIA)
 - [x] the JSON template from /idiv-mount/groups/Artificial-Intelligence/via-image-annotator/field_img_template_11_01_2022.json
       I removed the extra attributes and renamed it for clarity
-- [ ] a script example about how to convert from the JSON file format given by VIA to spreadsheets,
+- [x] a script example about how to convert from the JSON file format given by VIA to spreadsheets,
       - Use the scripts from local repo Nextcloud/annotation-converters/R/; for Python example see Dropbox - /insect-detection/mobile_pollinator_id/sequence_predictions/utils.py
 - [ ] the scripts needed to build any tables and figures in the final manuscript.
       - adapt from local repo /Nextcloud/paper_img_with_phones/analysis/
