@@ -1,9 +1,6 @@
 # Script to create Figure in Appendix Figure I. Frequency of images by hour of the day 
 
 library(data.table)
-library(magrittr)
-library(stringr)
-library(lubridate)
 library(ggplot2)
 library(scales) # for thousand separators on graph axis
 
