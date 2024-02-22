@@ -1,6 +1,32 @@
-# pollinator-image-annotation
+# Overview
 
-## Annotation with VGG Image Annotator (VIA)
+This repository contains the scripts and metadata associated with [add final version here + URL]
+
+## How to use this repository
+
+You can [download][1] or clone the repository then run the scripts using the *pollinator-image-annotation.Rproj* file ([R][2] and [R Studio][3] are needed).
+
+For cloning, run this in a terminal (git should be [installed][4]):
+
+```
+git clone https://github.com/valentinitnelav/pollinator-image-annotation.git
+```
+
+In the directory "./data-descriptor-scripts":
+
+- `data_descriptor.r`- script to get the descriptive stats reported in the manuscript
+- `insect_taxa_barplots.r` - script to create the barplots with taxa level identification. The figures are saved in the directory "./figures"
+
+[1]: https://github.com/valentinitnelav/pollinator-image-annotation/archive/refs/heads/main.zip
+[2]: https://www.r-project.org/
+[3]: https://www.rstudio.com/products/rstudio/download/
+[4]: https://git-scm.com/downloads
+
+In the directory "./annotation-scripts" one finds R and Python scripts with examples regarding how to read the VGG Image Annotator (VIA) JSON files and how to convert them to data frames.
+
+Metadata regarding the images and arthropod annotation is stored in the directory "./data"
+
+## Example of annotation with VGG Image Annotator (VIA)
 
 During the manual annotation process, we utilized the freely available, open-source [VGG Image Annotator (VIA)][1] to enclose any detected insect within a tightly-fitted bounding box and documented its taxonomic order. 
 

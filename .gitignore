@@ -3,4 +3,4 @@
 .RData
 .Ruserdata
 
-data/via.html
+*.html

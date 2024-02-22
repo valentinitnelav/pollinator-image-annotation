@@ -1,14 +1,11 @@
-# Script to get descriptive stats reported in the manuscript
+# Script to get descriptive stats & tables reported in the manuscript and appendices
 
 library(data.table)
 library(magrittr)
-library(ggplot2)
-library(lubridate) # optional
-library(scales) # for thousand separators on graph axis
 
 # Read data ---------------------------------------------------------------
 
-# The latest annotated data. 
+# Annotation data - bounding box info 
 dt <- readRDS(file = "./data/dt_box_annotation.rds")
 
 dt[, .N, keyby = order]
@@ -22,59 +19,31 @@ dt[, .N, keyby = order]
 # 7:        no_id    11
 # 8: thysanoptera  2965
 
-
-# The file dt_plant_folders.rds contains all plant folder paths for the entire
-# 2021 field season, their date folder and corrected plant genus & epithet. Here
-# is needed to extract some stats and numbers that I want to put in the
-# manuscript.
-dt_plant_corr <- readRDS(file = './data/dt_plant_folders.rds')
-dt_plant_corr[, plant := paste(plant_genus, plant_epithet, sep = "_")]
-
-# A table with all recorded images from 2021 (not just the annotated ones).
-dt_img <- readRDS(file = './data_cache/dt_img_paths.rds')
+# Image metadata - all images parsed
+dt_img_anno <- readRDS(file = "./data/dt_img_exif_metadata.rds")
+nrow(dt_img_anno) # 460056
 
 
 # General stats -----------------------------------------------------------
 
-dt[, img_path := paste(date_folder, corresponding_plant_folder, filename, sep = "/")]
+# Create a unique key for each image
+dt[, img_path := paste(date, plant_folder, filename, sep = "/")]
+dt_img_anno[, img_path := paste(date, plant_folder, filename, sep = "/")]
 
-# Length of the field data collection in 2021
-field_dates <- dt_plant_corr$date %>% unique %>% sort 
-range(field_dates)
-# [1] "2021-07-05" "2021-09-17"
-# dt_plant_corr$date %>% unique %>% sort %>% cat(sep = "\n")
-
-# How many field days for the entire season of 2021?
-length(field_dates) # 39
-
-# Dates for the annotated plant-folders only
-field_date2 <- dt[['date']] %>% unique %>% sort
-range(field_date2)
-# "2021-07-06" "2021-09-16"
+# Dates for the annotated plant-folders
+field_date <- dt[['date']] %>% unique %>% sort
+range(field_date)
+# "2021-07-06" "2021-09-16" # July - September
 
 # How many dates are within the annotated folder?
-length(field_date2) # 18
-
-# How many 1-hour folders were recorded in total in 2021?
-nrow(dt_plant_corr) # 530
-# double check that is the same
-nrow(dt_plant_corr[, .N, keyby = .(date_folder, plant_folder)]) # 530
-# Double check also with the info from with dt_img
-unique(dt_img[, .(date_folder, plant_folder)]) %>% nrow() # 530
-
-
-# How many unique plant species in total in 2021 (from all plant folders, not
-# just those annotated)
-dt_plant_corr[, uniqueN(plant)] # 44
-
-# How many 1-hour folders per plant in total in 2021?
-dt_plant_corr[, .N, by = plant][order(-N)]
+length(field_date) # 18
 
 # How many annotated images per plant?
+dt[, plant := paste(plant_genus, plant_epithet, sep = "_")]
 dt[, .(n_box = .N, n_img = uniqueN(img_path)), keyby = plant]
 
 # How many annotated folder (complete or incomplete annotation)
-dt[, .N, keyby = .(date_folder, corresponding_plant_folder)] # 213 plant-folders annotated
+dt[, .N, keyby = .(date, plant_folder)] # 213 plant-folders annotated
 
 # Number of annotated images and boxes
 dt[, .(n_img = uniqueN(img_path))] # 33502 images
@@ -98,12 +67,7 @@ dt[, .(n_rows = .N, n_img = uniqueN(img_path)), keyby = n_boxes][
 
 
 # How many images did we navigate through?
-intersect(colnames(dt), colnames(dt_img))
-# [1] "date_folder" "filename" 
-dt_img[, folders := paste(date_folder, plant_folder, sep = "_")]
-dt[, folders := paste(date, corresponding_plant_folder, sep = "_")]
-dt_img_anno <- dt_img[folders %in% dt$folders]
-all(dt$img_path %in% dt_img_anno$path) # TRUE - expect TRUE
+all(dt[["img_path"]] %in% dt_img_anno[["img_path"]]) # TRUE - expect TRUE
 nrow(dt_img_anno) # 460056 images within the annotated folders
 dt[, .(n_img = uniqueN(img_path))] # 33502 unique images
 n_img_anno_prc <- dt[, .(n_img = uniqueN(img_path))] / nrow(dt_img_anno) * 100
@@ -112,27 +76,31 @@ round(n_img_anno_prc, 2) # 7.28%
 100 - round(n_img_anno_prc, 2) # 92.72%
 
 
-# Appendix Tbl. 2 --------------------------------------------------------------
+# Appendix Table - List of sampled plant species and number of annotated images. --------------------------------------------------------------
+
+# This was Appendix_Table_II
 
 # Plant species that we sampled, number of sampled hours and number of annotated images.
 
-# Update the dt_img_anno with the plant name from dt_plant_corr using plant_folder as key
+# Update the dt_img_anno with the plant name. First create a table with unique
+# entries for date and plant_folder.
+dt_plant <- unique(dt[,.(date, plant_folder, plant)], by = c("date", "plant_folder"))
 dt_img_anno <- merge(x = dt_img_anno, 
-                     y = dt_plant_corr[,.(date, plant_folder, plant)],
-                     by.x = c('date_folder', 'plant_folder'),
-                     by.y = c('date', 'plant_folder'),
+                     y = dt_plant,
+                     by = c('date', 'plant_folder'),
                      all.x = TRUE)
 
 # Get a table of unique annotated images
-dt_img_unq <- dt[, .(path = unique(img_path), annotated = 1L)]
-dt_img_anno2 <- merge(dt_img_anno, dt_img_unq, by = 'path', all.x = TRUE)
+dt_img_unq <- dt[, .(img_path = unique(img_path), annotated = 1L)]
+dt_img_anno2 <- merge(dt_img_anno, dt_img_unq, by = 'img_path', all.x = TRUE)
 dt_img_anno2[, annotated := ifelse(is.na(annotated), 0, annotated)]
 
-# dt_img_anno2[, folders := paste(date_folder, plant_folder, sep = "_")]
-tbl_spp_2 <- dt_img_anno2[, .(n_folders = uniqueN(folders),
-                              n_img_total = uniqueN(path), 
-                              n_img_with_insect = sum(annotated)), keyby = plant]
-tbl_spp_2[, percent_img_w_insect := round(n_img_with_insect/n_img_total*100,2)]
+dt_img_anno2[, date_plant_folder := paste(date, plant_folder, sep = "_")]
+tbl_spp_2 <- dt_img_anno2[, .(n_folders = uniqueN(date_plant_folder),
+                              n_img_total = uniqueN(img_path), 
+                              n_img_with_insect = sum(annotated)), 
+                          keyby = plant]
+tbl_spp_2[, percent_img_w_insect := round(n_img_with_insect/n_img_total*100, 2)]
 
 tbl_spp_2_sum <- tbl_spp_2[, .(
   plant = "TOTAL",
@@ -158,36 +126,9 @@ tbl_spp_2_final[, Plant := gsub("_", " ", Plant)]
 
 
 write.csv(tbl_spp_2_final, 
-          file = './data/cache/Appendix_Table_II.csv',
+          file = './data/cache/Appendix_Table_plant_Nimg.csv',
           row.names = TRUE)
 
-
-# Time of the day -------------------------------------------------------
-
-dt_img_anno[, hour := as.integer(format(time, "%H"))]
-
-quantiles <- quantile(dt_img_anno$hour, probs = c(0.025, 0.975))
-
-gg_time_of_day <- ggplot(dt_img_anno, aes(x = hour)) +
-  geom_histogram(binwidth = 1, color = "black", fill = "white") +
-  geom_vline(aes(xintercept = quantiles[1]), color = "red", linetype = "dashed", size = 1) +
-  geom_vline(aes(xintercept = quantiles[2]), color = "red", linetype = "dashed", size = 1) +
-  scale_x_continuous(breaks = 0:23) +
-  scale_y_continuous(labels = comma_format()) +
-  xlab("Hour of the Day") +
-  ylab("Frequency") +
-  theme_bw(base_size = 10) +
-  theme(axis.title = element_text(size = 10), # Set axis & legend title size to 10
-        legend.title = element_text(size = 10))
-
-# Save to .eps and .pdf formats as required by the journal
-ggsave("./figures/fig-time-of-day-barplot.eps", gg_time_of_day, width = 12, height = 8, units = "cm")
-ggsave("./figures/fig-time-of-day-barplot.pdf", gg_time_of_day, width = 12, height = 8, units = "cm")
-# For visualization in drafts, save also to jpg format
-ggsave("./figures/fig-time-of-day-barplot.jpg", gg_time_of_day, width = 12, height = 8, units = "cm", dpi = 300)
-
-
-# Figure order id examples ------------------------------------------------
 
 # Taxa tables -------------------------------------------------------------
 
@@ -218,12 +159,10 @@ order_summary_dt
 # 9:        Total 35194  100.00        NA
 
 
-# ~ Appendix Table III. - Hymenoptera -----------------------------------------------------------
+# ~ Appendix Table - Hymenoptera -----------------------------------------------------------
 
 taxa_cols_hym_all <- c('order', 'suborder', 'infraorder', 'superfamily', 'family', 'genus', 'morphospecies', 'species')
-# dt_hym_taxa_all <- dt[order == "hymenoptera", 
-#                       .(n_box = .N, n_img = uniqueN(img_path)), 
-#                       keyby = taxa_cols_hym_all][, img_prc := round(n_img/sum(n_img) *100, 1)]
+
 dt_hym_taxa_all <- dt[order == "hymenoptera", .(n_box = .N), keyby = taxa_cols_hym_all][, prc := round(n_box/sum(n_box) *100, 1)][]
 dt_hym_taxa_all[]
 
@@ -234,9 +173,7 @@ write.csv(dt_hym_taxa_all,
 
 # 'suborder', 'infraorder', 'superfamily', 
 taxa_cols_hym <- c('family', 'genus', 'morphospecies', 'species')
-# dt_hym_taxa <- dt[order == "hymenoptera", 
-#                   .(n_box = .N, n_img = uniqueN(img_path)), 
-#                   keyby = taxa_cols_hym][, img_prc := round(n_img/sum(n_img) *100, 1)]
+
 dt_hym_taxa <- dt[order == "hymenoptera", .(n_box = .N), keyby = taxa_cols_hym][, prc := round(n_box/sum(n_box) *100, 3)][]
 
 dt_hym_taxa_sum <- dt_hym_taxa[, .(
@@ -266,30 +203,24 @@ dt_hym_taxa_final[Morphospecies == "white_rump", Morphospecies := "white_tailed"
 dt_hym_taxa_final[is.na(dt_hym_taxa_final)] <- ""
 
 write.csv(dt_hym_taxa_final, 
-          file = './data/cache/Appendix_Table_III_taxa_counts_hymenoptera.csv',
+          file = './data/cache/Appendix_Table_taxa_counts_hymenoptera.csv',
           row.names = TRUE)
 
 
-# ~ Diptera ---------------------------------------------------------------
+# ~ Appendix Table - Diptera ---------------------------------------------------------------
 
 taxa_cols_dipt_all <- c('order', 'suborder', 'infraorder', 'superfamily', 'family', 'clustergenera', 'genus', 'species')
-# dt_dip_taxa_all <- dt[order == "diptera", 
-#                       .(n_box = .N, n_img = uniqueN(img_path)), 
-#                       keyby = taxa_cols_dipt_all][, img_prc := round(n_img/sum(n_img) *100, 1)]
+
 dt_dip_taxa_all <- dt[order == "diptera", .(n_box = .N), keyby = taxa_cols_dipt_all][, prc := round(n_box/sum(n_box) *100, 1)][]
 
-# taxa_cols_dipt_no_ord <- taxa_cols_dipt_all[2:length(taxa_cols_dipt_all)]
 
 write.csv(dt_dip_taxa_all, 
           file = './data/cache/table_taxa_counts_diptera_all_taxa_levels.csv',
           row.names = FALSE)
 
 
-
 taxa_cols_dipt <- c('family', 'clustergenera', 'genus', 'species')
-# dt_dip_taxa <- dt[order == "diptera", 
-#                   .(n_box = .N, n_img = uniqueN(img_path)), 
-#                   keyby = taxa_cols_dipt][, img_prc := round(n_img/sum(n_img) *100, 1)]
+
 dt_dip_taxa <- dt[order == "diptera", .(n_box = .N), keyby = taxa_cols_dipt][, prc := round(n_box/sum(n_box) *100, 3)][]
 
 dt_dip_taxa_sum <- dt_dip_taxa[, .(
@@ -315,5 +246,5 @@ dt_dip_taxa_final[, Genus := tools::toTitleCase(Genus)]
 dt_dip_taxa_final[is.na(dt_dip_taxa_final)] <- ""
 
 write.csv(dt_dip_taxa_final, 
-          file = './data/cache/Appendix_Table_V_taxa_counts_diptera.csv',
+          file = './data/cache/Appendix_Table_taxa_counts_diptera.csv',
           row.names = TRUE)
