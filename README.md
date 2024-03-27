@@ -1,6 +1,6 @@
 # Overview
 
-This repository contains the scripts and metadata associated with [add final version here + URL]
+This repository contains the scripts and metadata associated with **[add final version here + URL]**
 
 ## How to use this repository
 
@@ -12,15 +12,19 @@ For cloning, run this in a terminal (git should be [installed][4]):
 git clone https://github.com/valentinitnelav/pollinator-image-annotation.git
 ```
 
-In the directory "./data-descriptor-scripts":
-
-- `data_descriptor.r`- script to get the descriptive stats reported in the manuscript
-- `insect_taxa_barplots.r` - script to create the barplots with taxa level identification. The figures are saved in the directory "./figures"
-
 [1]: https://github.com/valentinitnelav/pollinator-image-annotation/archive/refs/heads/main.zip
 [2]: https://www.r-project.org/
 [3]: https://www.rstudio.com/products/rstudio/download/
 [4]: https://git-scm.com/downloads
+
+
+In the directory "./data-descriptor-scripts":
+
+- `data_descriptor.r`- R script to get the descriptive stats reported in the manuscript.
+- `histogram_n_img_by_hours.r` - R script to create Figure in Appendix Figure I. Frequency of images by hour of the day.
+- `img_metadata_stats.r` - R script to compute descriptive stats about image metadata for Table 3.
+- `insect_taxa_barplots.r` - R script to create the barplots with taxa level identification. The figures are saved in the directory "./figures".
+- `time_stats.r` - R script to compute stats regarding the time step between consecutive images and session duration per plant-folder (target flower).
 
 In the directory "./annotation-scripts" one finds R and Python scripts with examples regarding how to read the VGG Image Annotator (VIA) JSON files and how to convert them to data frames.
 
