@@ -176,6 +176,9 @@ taxa_cols_hym <- c('family', 'genus', 'morphospecies', 'species')
 
 dt_hym_taxa <- dt[order == "hymenoptera", .(n_box = .N), keyby = taxa_cols_hym][, prc := round(n_box/sum(n_box) *100, 3)][]
 
+# How many were identified to genus level?
+dt_hym_taxa[!is.na(genus), sum(prc)] %>% round(2) # 64.59
+
 dt_hym_taxa_sum <- dt_hym_taxa[, .(
   family = "TOTAL",
   n_box = sum(n_box), 
@@ -222,6 +225,9 @@ write.csv(dt_dip_taxa_all,
 taxa_cols_dipt <- c('family', 'clustergenera', 'genus', 'species')
 
 dt_dip_taxa <- dt[order == "diptera", .(n_box = .N), keyby = taxa_cols_dipt][, prc := round(n_box/sum(n_box) *100, 3)][]
+
+# How many were identified to genus level?
+dt_dip_taxa[!is.na(genus), sum(prc)] %>% round(2) # 26.78
 
 dt_dip_taxa_sum <- dt_dip_taxa[, .(
   family = "TOTAL",
