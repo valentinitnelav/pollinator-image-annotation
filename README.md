@@ -30,6 +30,67 @@ In the directory "./annotation-scripts" one finds R and Python scripts with exam
 
 Metadata regarding the images and arthropod annotation is stored in the directory "./data"
 
+## R packages & R session information
+
+Information about the R session used was obtained with the command:
+```r
+sessionInfo()
+```
+
+```
+R version 4.4.0 (2024-04-24)
+Platform: x86_64-pc-linux-gnu
+Running under: Ubuntu 22.04.4 LTS
+
+Matrix products: default
+BLAS:   /usr/lib/x86_64-linux-gnu/atlas/libblas.so.3.10.3 
+LAPACK: /usr/lib/x86_64-linux-gnu/atlas/liblapack.so.3.10.3;  LAPACK version 3.10.0
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C               LC_TIME=en_GB.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_GB.UTF-8    LC_MESSAGES=en_US.UTF-8    LC_PAPER=en_GB.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C             LC_MEASUREMENT=en_GB.UTF-8 LC_IDENTIFICATION=C       
+
+time zone: Europe/Berlin
+tzcode source: system (glibc)
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] checkpoint_1.0.2  forcats_1.0.0     tidyr_1.3.1       scales_1.3.0      ggplot2_3.5.1     magrittr_2.0.3    data.table_1.15.4
+
+loaded via a namespace (and not attached):
+ [1] vctrs_0.6.5       knitr_1.46        cli_3.6.2         xfun_0.43         rlang_1.1.3       purrr_1.0.2       generics_0.1.3   
+ [8] glue_1.7.0        colorspace_2.1-0  htmltools_0.5.8.1 fansi_1.0.6       rmarkdown_2.26    grid_4.4.0        munsell_0.5.1    
+[15] evaluate_0.23     tibble_3.2.1      fastmap_1.1.1     lifecycle_1.0.4   compiler_4.4.0    dplyr_1.1.4       pkgconfig_2.0.3  
+[22] rstudioapi_0.16.0 digest_0.6.35     R6_2.5.1          tidyselect_1.2.1  utf8_1.2.4        pillar_1.9.0      tools_4.4.0      
+[29] withr_3.0.0       gtable_0.3.5 
+```
+
+### Use the R `checkpoint` package for reproducible research
+
+**WARNING**: 
+
+This was tested only when using RStudio and having a "project" for this repository (e.g. [Using RStudio Projects][rstudio_01], or [RStudio Projects and Working Directories: A Beginner’s Guide][rstudio_02]).
+
+[rstudio_01]: https://support.posit.co/hc/en-us/articles/200526207-Using-RStudio-Projects
+[rstudio_02]: https://www.r-bloggers.com/2020/01/rstudio-projects-and-working-directories-a-beginners-guide/
+
+If you do not specify a project, running the `checkpoint` command below could cause it to scan all R files on your computer for `library()` and `require()` calls. This might result in a large number of packages being installed in the library associated with this repository.
+
+```r
+# First intall the R package `checkpoint`
+install.packages("checkpoint")
+
+library(checkpoint)
+checkpoint(snapshot_date="2024-06-01", r_version="4.4.0", checkpoint_location = "~")
+# Default location is "~", i.e. your home directory.
+
+# For older versions of R, but not recommended due to possilbe package dependcy incompatibilities:
+checkpoint(snapshot_date="2024-06-01", checkpoint_location = "~") 
+```
+
 ## Example of annotation with VGG Image Annotator (VIA)
 
 During the manual annotation process, we utilized the freely available, open-source [VGG Image Annotator (VIA)][1] to enclose any detected insect within a tightly-fitted bounding box and documented its taxonomic order. 
