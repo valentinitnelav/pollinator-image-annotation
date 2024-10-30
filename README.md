@@ -28,7 +28,7 @@ In the directory "./data-descriptor-scripts":
 
 In the directory "./annotation-scripts" one finds R and Python scripts with examples regarding how to read the VGG Image Annotator (VIA) JSON files and how to convert them to data frames.
 
-Metadata regarding the images and arthropod annotation is stored in the directory "./data"
+Metadata regarding the images and arthropod annotation is stored in the directory "./data".
 
 ## R packages & R session information
 
@@ -72,7 +72,7 @@ loaded via a namespace (and not attached):
 
 **WARNING**: 
 
-This was tested only when using RStudio and having a "project" for this repository (e.g. [Using RStudio Projects][rstudio_01], or [RStudio Projects and Working Directories: A Beginner’s Guide][rstudio_02]).
+This was tested only when using RStudio and having a "project" for this repository (e.g. [Using RStudio Projects][rstudio_01], or [RStudio Projects and Working Directories: A Beginner’s Guide][rstudio_02]). Additionally, please note that the operating system used for running all the scripts in the repository was Ubuntu 22.04.4 LTS, x86_64-pc-linux-gnu.
 
 [rstudio_01]: https://support.posit.co/hc/en-us/articles/200526207-Using-RStudio-Projects
 [rstudio_02]: https://www.r-bloggers.com/2020/01/rstudio-projects-and-working-directories-a-beginners-guide/

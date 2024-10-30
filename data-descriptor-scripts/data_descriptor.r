@@ -177,7 +177,9 @@ taxa_cols_hym <- c('family', 'genus', 'morphospecies', 'species')
 dt_hym_taxa <- dt[order == "hymenoptera", .(n_box = .N), keyby = taxa_cols_hym][, prc := round(n_box/sum(n_box) *100, 3)][]
 
 # How many were identified to genus level?
-dt_hym_taxa[!is.na(genus), sum(prc)] %>% round(2) # 64.59
+dt_hym_taxa[!is.na(genus), sum(prc)] %>% round(2) # 64.59 %
+# How many were identified to species level?
+dt_hym_taxa[!is.na(species), sum(prc)] %>% round(2) # 19.36 %
 
 dt_hym_taxa_sum <- dt_hym_taxa[, .(
   family = "TOTAL",
@@ -227,7 +229,9 @@ taxa_cols_dipt <- c('family', 'clustergenera', 'genus', 'species')
 dt_dip_taxa <- dt[order == "diptera", .(n_box = .N), keyby = taxa_cols_dipt][, prc := round(n_box/sum(n_box) *100, 3)][]
 
 # How many were identified to genus level?
-dt_dip_taxa[!is.na(genus), sum(prc)] %>% round(2) # 26.78
+dt_dip_taxa[!is.na(genus), sum(prc)] %>% round(2) # 26.18 %
+# How many were identified to species level?
+dt_dip_taxa[!is.na(species), sum(prc)] %>% round(2) # 15.19 %
 
 dt_dip_taxa_sum <- dt_dip_taxa[, .(
   family = "TOTAL",
@@ -254,3 +258,13 @@ dt_dip_taxa_final[is.na(dt_dip_taxa_final)] <- ""
 write.csv(dt_dip_taxa_final, 
           file = './data/cache/Appendix_Table_taxa_counts_diptera.csv',
           row.names = TRUE)
+
+
+# Annotation time ---------------------------------------------------------
+
+# We parsed 460,056 images in ~ 1000 hours (approximation).
+
+# Time spent on average per image (parsing trough the folder and placing
+# bounding boxes on images with insects):
+(1000*3600)/460056
+# 7.825134 seconds
