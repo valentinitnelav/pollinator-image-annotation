@@ -56,12 +56,12 @@ nrow(dt) #  35194 boxes
 # has 4 boxes, also has an id_box = 3 and it gets counted in as well, when it
 # should not be because it has 4 boxes, so it gets counted 2 times.
 dt[, .(n_rows = .N, n_img = uniqueN(img_path)), keyby = n_boxes][
-  , img_prc := round(n_img/sum(n_img) *100, 1)][order(-img_prc)]
-#   n_boxes n_rows n_img img_prc
-# 1:       1  31901 31901    95.2
-# 2:       2   3004  1505     4.5
-# 3:       3    285    95     0.3
-# 4:       4      4     1     0.0
+  , img_prc := round(n_img/sum(n_img) *100, 2)][order(-img_prc)]
+#    n_boxes n_rows n_img  img_prc
+# 1:       1  31901 31901    95.22
+# 2:       2   3004  1505     4.49
+# 3:       3    285    95     0.28
+# 4:       4      4     1     0.00
 # 31901 + 3004 + 285 + 4 = 35194, which is exactly nr rows in dt
 # 31901 + 1505 + 95 + 1 = 33502, which is exactly number of unique images in dt (see above)
 
