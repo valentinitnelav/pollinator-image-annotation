@@ -115,7 +115,7 @@ non_na_counts <- dt[order == what_order, lapply(.SD, function(x) sum(!is.na(x)))
 # Rename family to family/family-cluster
 setnames(non_na_counts, 
          old = c("family", "clustergenera"), 
-         new = c("family/fam.-cluster", "genera-cluster"))
+         new = c("family/fam.-cluster", "morphological-cluster"))
 non_na_counts
 #     order family/family-cluster genus genera-cluster species
 # 1:  5963                  3066  1593           1210     906
