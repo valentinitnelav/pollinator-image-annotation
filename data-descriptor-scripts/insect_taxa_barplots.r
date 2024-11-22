@@ -81,7 +81,7 @@ color_palette
 gg_hym <- ggplot(appended_data, aes(x = Variable, y = Count, fill = Species)) +
   geom_bar(stat = "identity") +
   xlab("Taxonomic level") +
-  ylab("Bounding box count") +
+  ylab("Instance count (bounding boxes)") +
   # Calculate the percentages directly here
   scale_y_continuous(labels = comma_format(),
                      sec.axis = sec_axis(transform = ~ . / order_count * 100, 
@@ -168,7 +168,7 @@ color_palette <- setNames(c("steelblue", "darkolivegreen"),
 gg_dipt <- ggplot(appended_data, aes(x = Variable, y = Count, fill = Species)) +
   geom_bar(stat = "identity") +
   xlab("Taxonomic level") +
-  ylab("Bounding box count") +
+  ylab("Instance count (bounding boxes)") +
   # Calculate the percentages directly here
   scale_y_continuous(labels = comma_format(),
                      sec.axis = sec_axis(transform = ~ . / order_count * 100, 
@@ -226,7 +226,7 @@ color_palette <- setNames(c("steelblue", "darkolivegreen", "red"),
 gg_dipt <- ggplot(appended_data, aes(x = Variable, y = Count, fill = Species)) +
   geom_bar(stat = "identity") +
   xlab("Taxonomic level") +
-  ylab("Bounding box count") +
+  ylab("Instance count (bounding boxes)") +
   # Calculate the percentages directly here
   scale_y_continuous(labels = comma_format(),
                      sec.axis = sec_axis(transform = ~ . / order_count * 100, 
