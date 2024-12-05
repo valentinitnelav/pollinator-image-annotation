@@ -4,6 +4,7 @@
 library(data.table)
 library(magrittr)
 library(ggplot2)
+library(patchwork)
 library(scales) # for thousand separators on graph axis
 library(tidyr)
 library(forcats)
@@ -23,7 +24,9 @@ dt[, .N, keyby = order]
 # 8: thysanoptera  2965
 
 
-# Fig 3 Hymenoptera -------------------------------------------------------------
+# Fig. 3 - Hymenoptera ----------------------------------------------------
+
+# ~ Fig 3 A - all -------------------------------------------------------------
 
 what_order <- 'hymenoptera'
 taxa_cols <- c('order', 'family', 'genus', 'morphospecies', 'species')
@@ -75,13 +78,14 @@ appended_data <- rbindlist(list(non_na_counts_long[Variable != "species", .(Vari
 
 # Capitalize first letter of each level in the factor
 levels(appended_data$Variable) <- tools::toTitleCase(levels(appended_data$Variable))
+levels(appended_data$Variable)[2] <- "Family - all"
 color_palette <- setNames(c("steelblue", "darkolivegreen"), c(dominant_sp, "Other species"))
 color_palette
 
-gg_hym <- ggplot(appended_data, aes(x = Variable, y = Count, fill = Species)) +
+gg_hym_a <- ggplot(appended_data, aes(x = Variable, y = Count, fill = Species)) +
   geom_bar(stat = "identity") +
   xlab("Taxonomic level") +
-  ylab("Instance count (bounding boxes)") +
+  ylab("Instance count\n(bounding boxes)") +
   # Calculate the percentages directly here
   scale_y_continuous(labels = comma_format(),
                      sec.axis = sec_axis(transform = ~ . / order_count * 100, 
@@ -91,21 +95,101 @@ gg_hym <- ggplot(appended_data, aes(x = Variable, y = Count, fill = Species)) +
                     breaks = names(color_palette)) +
   # Used the breaks argument because will ignore the NA values in the legend but not on the cavas
   theme_bw() +
-  theme(axis.title = element_text(size = 10), # Set axis & legend title size to 10
-        legend.title = element_text(size = 10),
+  theme(legend.position = "none", # remove legend for this one - helps with patching,
+        axis.title = element_text(size = 10),
+        axis.title.x = element_blank(),
         # Rotate x-axis labels 45 degrees
         axis.text.x = element_text(angle = 30, vjust = 1, hjust=1))
 
+gg_hym_a
+
+
+# ~ Fig 3 B - only pollinator families ------------------------------------------------
+
+taxa_cols <- c('family', 'genus', 'morphospecies', 'species')
+non_pollinator_fam <- c("cynipidae", "formicidae", "vespidae")
+dt_subset <- dt[order == "hymenoptera"][!is.na(family)][! family %in% non_pollinator_fam]
+dt_taxa_hym <- dt_subset[, .(n_box = .N), keyby = taxa_cols]
+
+non_na_counts <- dt_subset[, lapply(.SD, function(x) sum(!is.na(x))), .SDcols = taxa_cols]
+non_na_counts
+#    family genus morphospecies species
+# 1:  16031 13556          5063    4064
+
+# Prepare data format for ggplot2
+non_na_counts_long <- melt(non_na_counts, variable.name = "Variable", value.name = "Count")
+# ignore the warning
+non_na_counts_long
+
+# Calculate the percentages
+family_count <- non_na_counts_long[Variable == "family", Count]
+non_na_counts_long[, Percentage := Count / family_count * 100]
+non_na_counts_long
+#         Variable Count Percentage
+# 1:        family 16031  100.00000
+# 2:         genus 13556   84.56116
+# 3: morphospecies  5063   31.58256
+# 4:       species  4064   25.35088
+
+# Prepare a custom stacked barplot
+
+# Add zero-count entries for Apis mellifera at all other levels. This will
+# helping with creating a fake stack (zero) on top of the bars for other taxa
+# levels, except for species
+zero_counts <- data.table(Variable = c('family', 'genus', 'morphospecies'),
+                          Count = 0,
+                          Species = dominant_sp)
+
+# Create the data table for ggplot2 to make the custom stacked barplot
+appended_data <- rbindlist(list(non_na_counts_long[Variable != "species", .(Variable, Count)],
+                                species_count, 
+                                zero_counts), 
+                           fill=TRUE)
+
+# Capitalize first letter of each level in the factor
+levels(appended_data$Variable) <- tools::toTitleCase(levels(appended_data$Variable))
+levels(appended_data$Variable)[1] <- "Family without:\n Cynipidae,\n Formicidae,\n Vespidae"
+color_palette <- setNames(c("steelblue", "darkolivegreen"), c(dominant_sp, "Other species"))
+color_palette
+
+gg_hym_b <- ggplot(appended_data, aes(x = Variable, y = Count, fill = Species)) +
+  geom_bar(stat = "identity") +
+  xlab("Taxonomic level") +
+  ylab("Instance count\n(bounding boxes)") +
+  # Calculate the percentages directly here
+  scale_y_continuous(labels = comma_format(),
+                     sec.axis = sec_axis(transform = ~ . / family_count * 100, 
+                                         name = "%",
+                                         breaks = seq(0, 100, by = 10))) +
+  scale_fill_manual(values = color_palette,
+                    breaks = names(color_palette)) +
+  # Used the breaks argument because will ignore the NA values in the legend but not on the cavas
+  theme_bw() +
+  theme(axis.title = element_text(size = 10), # Set axis & legend title size to 10
+        legend.title = element_text(size = 10),
+        legend.position = "bottom",
+        # Rotate x-axis labels 45 degrees
+        axis.text.x = element_text(angle = 30, vjust = 1, hjust=1))
+
+gg_hym_b
+
+
+
+# Combine panels
+gg_hym <- (gg_hym_a / gg_hym_b) +
+  plot_annotation(tag_levels = 'A', tag_suffix = '')
+# theme(axis.title.y=element_blank()) # if you need to remove an axis title
 gg_hym
 
 # Save to .eps and .pdf formats as required by the journal
-ggsave("./figures/fig-3.eps", gg_hym, width = 12, height = 8, units = "cm")
-ggsave("./figures/fig-3.pdf", gg_hym, width = 12, height = 8, units = "cm")
+# https://www.pollinationecology.org/index.php/jpe/instructions_authors - 16 cm width 
+ggsave("./figures/fig-3.eps", gg_hym, width = 12, height = 16, units = "cm")
+ggsave("./figures/fig-3.pdf", gg_hym, width = 12, height = 16, units = "cm")
 # For visualization in drafts, save also to jpg format
-ggsave("./figures/fig-3.jpg", gg_hym, width = 12, height = 8, units = "cm", dpi = 300)
+ggsave("./figures/fig-3.jpg", gg_hym, width = 12, height = 16, units = "cm", dpi = 300)
 
 
-# Fig 10 Diptera -----------------------------------------------------------------
+# Fig 10 - Diptera -----------------------------------------------------------------
 
 what_order <- 'diptera'
 taxa_cols <- c('order', 'family', 'genus', 'clustergenera', 'species')
@@ -192,7 +276,7 @@ ggsave("./figures/fig-10.pdf", gg_dipt, width = 12, height = 8, units = "cm")
 ggsave("./figures/fig-10.jpg", gg_dipt, width = 12, height = 8, units = "cm", dpi = 300)
 
 
-# Option with all species ---------------------------------------------------
+# ~ (extra) Diptera - Option with all species ---------------------------------------------------
 
 # Since there are only 3 species, an option would be to plot them all in the species bar
 

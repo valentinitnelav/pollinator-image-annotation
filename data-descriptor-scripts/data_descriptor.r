@@ -76,10 +76,10 @@ round(n_img_anno_prc, 2) # 7.28%
 100 - round(n_img_anno_prc, 2) # 92.72%
 
 
-# Appendix Table - List of sampled plant species and number of annotated images. --------------------------------------------------------------
 
-# This was Appendix_Table_II
+# Appendix Tab. I ---------------------------------------------------------
 
+# List of sampled plant species and number of annotated images.
 # Plant species that we sampled, number of sampled hours and number of annotated images.
 
 # Update the dt_img_anno with the plant name. First create a table with unique
@@ -129,10 +129,176 @@ write.csv(tbl_spp_2_final,
           file = './data/cache/Appendix_Table_plant_Nimg.csv',
           row.names = TRUE)
 
+# Counts & percentages Hymenoptera -----------------------------------------------------
+
+# N. instances (boxes) in order Hymenoptera
+n_ord <- dt[order == "hymenoptera", .N]
+n_ord # 20987
+
+# N. instances identified to family
+n_fam <- dt[order == "hymenoptera" & !is.na(family), .N]
+n_fam # 18849
+round(n_fam / n_ord * 100, 2) # 89.81%
+
+# N. instances not identified to family
+n_no_fam <- dt[order == "hymenoptera" & is.na(family), .N] 
+n_no_fam # 2138
+round(n_no_fam / n_ord * 100, 2) # 10.19%
+
+# Of the 2,138 bounding boxes with insect instances that could be
+# identified to order Hymenoptera but not further identified to family:
+# 397 were outside the region of interest, 
+# 11  were obscured, 
+# 76  were too blurry, and 
+# 1,655 were tiny wasps.
+397 + 11 + 76 + 1654 # = expect 2138 as in n_no_fam
+round(397/n_no_fam * 100, 2)  # 18.57%
+round(11/n_no_fam * 100, 2)   #  0.51%
+round(1654/n_no_fam * 100, 2) # 77.36%
+
+
+# N. instances - table by family, including unidentified
+dt_family <- dt[order == "hymenoptera", .(n_box = .N), keyby = family][, prc := round(n_box/sum(n_box) *100, 2)][]
+dt_family
+#           family n_box   prc
+#           <char> <int> <num>
+#  1:         <NA>  2138 10.19
+#  2:   andrenidae   608  2.90
+#  3:       apidae  8485 40.43
+#  4:   colletidae   404  1.93
+#  5:    cynipidae   390  1.86
+#  6:   formicidae  2426 11.56
+#  7:   halictidae  6153 29.32
+#  8: megachilidae   195  0.93
+#  9:   melittidae   181  0.86
+# 10:   pompilidae     5  0.02
+# 11:     vespidae     2  0.01
+
+# N. instances - table by genus, including unidentified
+dt_genus <- dt[order == "hymenoptera", .(n_box = .N), keyby = .(family, genus)][, prc := round(n_box/sum(n_box) *100, 2)][]
+dt_genus
+#           family        genus n_box   prc
+#           <char>       <char> <int> <num>
+#  1:         <NA>         <NA>  2138 10.19
+#  2:   andrenidae         <NA>   355  1.69
+#  3:   andrenidae      andrena   253  1.21
+#  4:       apidae         apis  3307 15.76
+#  5:       apidae       bombus  5178 24.67
+#  6:   colletidae     colletes     2  0.01
+#  7:   colletidae      hylaeus   402  1.92
+#  8:    cynipidae         <NA>   390  1.86
+#  9:   formicidae         <NA>  2426 11.56
+# 10:   halictidae         <NA>  2092  9.97
+# 11:   halictidae     halictus  2959 14.10
+# 12:   halictidae lasioglossum  1102  5.25
+# 13: megachilidae         <NA>    28  0.13
+# 14: megachilidae    anthidium    13  0.06
+# 15: megachilidae    megachile   150  0.71
+# 16: megachilidae        osmia     4  0.02
+# 17:   melittidae     dasypoda     3  0.01
+# 18:   melittidae     macropis   178  0.85
+# 19:   pompilidae     episyron     5  0.02
+# 20:     vespidae         <NA>     2  0.01
+
+# N. instances in family Apidae, genus Bombus & morphospecies
+dt[family == "apidae" & !is.na(morphospecies), .N] # 5063
+
+# N. instances of non pollinating Hymenoptera families
+# Unlikely to be pollinators (families Cynipidae, Formicidae, Vespidae)
+n_fam_non_poll <- dt[family %in% c("cynipidae", "formicidae", "vespidae"), .N]
+n_fam_non_poll # 2818
+round(n_fam_non_poll / n_fam * 100, 2) # 14.95%
+
+# N. instances of pollinating Hymenoptera families
+n_poll_fam <- n_fam - n_fam_non_poll
+n_poll_fam # 16031
+round(n_poll_fam / n_ord * 100, 2) # 76.39%
+
+# N. instances identified to genus
+n_genus <- dt[order == "hymenoptera" & !is.na(genus), .N]
+n_genus # 13556
+round(n_genus / n_fam * 100, 2) # 71.92% relative to all families
+round(n_genus / n_poll_fam * 100, 2) # 84.56% relative to only pollinating families
+
+# N. instances identified to species
+n_sp <- dt[order == "hymenoptera" & !is.na(species), .N]
+n_sp # 4064
+round(n_sp / n_ord * 100, 2) # 19.36 relative to all Hymenoptera order
+round(n_sp / n_fam * 100, 2) # 21.56% relative to all Hymenoptera families
+round(n_sp / n_poll_fam * 100, 2) # 25.35% relative to only pollinating Hymenoptera families
+
+# N. instances not identified to genus:
+# - from all families, including non pollinating families
+dt[order == "hymenoptera" & is.na(genus), .N] # 7431 
+# - excluding non pollinators / Only from pollinating Hymenoptera families
+n_no_genus_poll <- dt[order == "hymenoptera"][!is.na(family)][!(family %in% c("cynipidae", "formicidae", "vespidae"))][is.na(genus), .N]
+n_no_genus_poll # 2475
+2818 + 2475 # (no genus because non-pollinator + no genus of pollinators) = 5293 no genus info across all Hymenoptera instances
+5293 + 13556 # 18849 - all Hymenoptera families
+
+# From those with no genus info of pollinating families:
+# 693 outside ROI, 171 obscured, 1611 blurry
+693 + 171 + 1611 # expect 2475
+round(693/n_no_genus_poll * 100, 2) #  28.00%
+round(171/n_no_genus_poll * 100, 2) #   6.91%
+round(1611/n_no_genus_poll * 100, 2) # 65.09%
+
+
+# Counts & percentages Diptera -----------------------------------------------------
+
+# N. instances (boxes) in order Hymenoptera
+n_ord <- dt[order == "diptera", .N]
+n_ord # 5963
+
+# N. instances identified to family
+n_fam <- dt[order == "diptera" & !is.na(family), .N]
+n_fam # 3066
+round(n_fam / n_ord * 100, 2) # 51.42%
+
+# N. instances not identified to family
+n_no_fam <- dt[order == "diptera" & is.na(family), .N] 
+n_no_fam # 2897
+round(n_no_fam / n_ord * 100, 2) # 48.58%
+
+# N. instances - table by family, including unidentified
+dt_family <- dt[order == "diptera", .(n_box = .N), keyby = family][, prc := round(n_box/sum(n_box) *100, 2)][]
+dt_family
+#                      family n_box   prc
+# 1:                     <NA>  2897 48.58
+# 2:             anthomyiidae    17  0.29
+# 3:   calliphoridae/muscidae   184  3.09
+# 4:              chyromyidae    57  0.96
+# 5: sarcophagidae/tachinidae    15  0.25
+# 6:                syrphidae  2761 46.30
+# 7:               tachinidae    32  0.54
+
+# N. instances not identified to genus
+n_genus <- dt[order == "diptera" & !is.na(genus), .N]
+n_genus # 1561
+round(n_genus / n_ord * 100, 2) # 26.18%
+
+# N. instances not identified to species
+n_sp <- dt[order == "diptera" & !is.na(species), .N]
+n_sp # 906
+round(n_sp / n_ord * 100, 2) # 15.19%
+
+# N. instances not identified to Syrphid morphological groups
+n_syrph_gr <- dt[family == "syrphidae" & !is.na(clustergenera), .N]
+n_syrph_gr
+round(n_syrph_gr / n_ord * 100, 2) # 20.29%
+
+# N. instances associated with Fig. 12C
+round(697 / n_ord * 100, 2)    # 11.69% of all Diptera
+round(697 / n_no_fam * 100, 2) # 24.06% of instances with no family
+
+# N. instances outside ROI - FIg 12D
+round(182 / n_ord * 100, 2)    # 3.05% of all Diptera
+round(182 / n_no_fam * 100, 2) # 6.28% of instances with no family
+
 
 # Taxa tables -------------------------------------------------------------
 
-# ~ order level (Tbl. 1) --------------------------------------------------
+# ~ Table 1 - order level --------------------------------------------------
 
 # N box and percent.Note that using n_img = uniqueN(img_path) is not accurate
 # because the same image can be counted two times if it contains boxes of two
@@ -159,7 +325,7 @@ order_summary_dt
 # 9:        Total 35194  100.00        NA
 
 
-# ~ Appendix Table - Hymenoptera -----------------------------------------------------------
+# ~ Appendix Table V - Hymenoptera -----------------------------------------------------------
 
 taxa_cols_hym_all <- c('order', 'suborder', 'infraorder', 'superfamily', 'family', 'genus', 'morphospecies', 'species')
 
@@ -211,8 +377,7 @@ write.csv(dt_hym_taxa_final,
           file = './data/cache/Appendix_Table_taxa_counts_hymenoptera.csv',
           row.names = TRUE)
 
-
-# ~ Appendix Table - Diptera ---------------------------------------------------------------
+# ~ Appendix Table VI - Diptera ---------------------------------------------------------------
 
 taxa_cols_dipt_all <- c('order', 'suborder', 'infraorder', 'superfamily', 'family', 'clustergenera', 'genus', 'species')
 
@@ -260,7 +425,7 @@ write.csv(dt_dip_taxa_final,
           row.names = TRUE)
 
 
-# Annotation time ---------------------------------------------------------
+# Extra - annotation time ---------------------------------------------------------
 
 # We parsed 460,056 images in ~ 1000 hours (approximation).
 
