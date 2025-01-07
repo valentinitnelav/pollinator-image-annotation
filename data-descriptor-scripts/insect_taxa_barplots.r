@@ -4,6 +4,7 @@
 library(data.table)
 library(magrittr)
 library(ggplot2)
+library(ggtext) # text rendering support for ggplot2
 library(patchwork)
 library(scales) # for thousand separators on graph axis
 library(tidyr)
@@ -149,8 +150,13 @@ appended_data <- rbindlist(list(non_na_counts_long[Variable != "species", .(Vari
 # Capitalize first letter of each level in the factor
 levels(appended_data$Variable) <- tools::toTitleCase(levels(appended_data$Variable))
 levels(appended_data$Variable)[1] <- "Family without:\n Cynipidae,\n Formicidae,\n Vespidae"
-color_palette <- setNames(c("steelblue", "darkolivegreen"), c(dominant_sp, "Other species"))
+color_palette <- setNames(c("steelblue", "darkolivegreen"), 
+                          c(dominant_sp, "Other species"))
 color_palette
+
+# Format dominant_sp for italics. It didn't work to format it directly with setNames() above,
+# because somehow it is not rendered by ggtext::element_markdown() below.
+dominant_sp_label <- paste0("*", dominant_sp, "*")  # Markdown-style italics
 
 gg_hym_b <- ggplot(appended_data, aes(x = Variable, y = Count, fill = Species)) +
   geom_bar(stat = "identity") +
@@ -162,12 +168,15 @@ gg_hym_b <- ggplot(appended_data, aes(x = Variable, y = Count, fill = Species)) 
                                          name = "%",
                                          breaks = seq(0, 100, by = 10))) +
   scale_fill_manual(values = color_palette,
+                    labels = c(dominant_sp_label, "Other species"),  # Italicized label for legend
                     breaks = names(color_palette)) +
   # Used the breaks argument because will ignore the NA values in the legend but not on the cavas
   theme_bw() +
   theme(axis.title = element_text(size = 10), # Set axis & legend title size to 10
         legend.title = element_text(size = 10),
         legend.position = "bottom",
+        # Render Markdown in legend
+        legend.text = ggtext::element_markdown(size = 10),
         # Rotate x-axis labels 45 degrees
         axis.text.x = element_text(angle = 30, vjust = 1, hjust=1))
 
@@ -249,6 +258,10 @@ levels(appended_data$Variable) <- tools::toTitleCase(levels(appended_data$Variab
 color_palette <- setNames(c("steelblue", "darkolivegreen"), 
                           c(dominant_sp, "Other species"))
 
+# Format dominant_sp for italics. It didn't work to format it directly with setNames() above,
+# because somehow it is not rendered by ggtext::element_markdown() below.
+dominant_sp_label <- paste0("*", dominant_sp, "*")  # Markdown-style italics
+
 gg_dipt <- ggplot(appended_data, aes(x = Variable, y = Count, fill = Species)) +
   geom_bar(stat = "identity") +
   xlab("Taxonomic level") +
@@ -259,11 +272,14 @@ gg_dipt <- ggplot(appended_data, aes(x = Variable, y = Count, fill = Species)) +
                                          name = "%",
                                          breaks = seq(0, 100, by = 10))) +
   scale_fill_manual(values = color_palette,
+                    labels = c(dominant_sp_label, "Other species"),  # Italicized label for legend
                     breaks = names(color_palette)) +
   # Used the breaks argument because will ignore the NA values in the legend but not on the cavas
   theme_bw() +
   theme(axis.title = element_text(size = 10), # Set axis & legend title size to 10
         legend.title = element_text(size = 10),
+        # Render Markdown in legend
+        legend.text = ggtext::element_markdown(size = 10),
         # Rotate x-axis labels 45 degrees
         axis.text.x = element_text(angle = 30, vjust = 1, hjust=1))
 
