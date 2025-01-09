@@ -2,13 +2,13 @@
 
 ## General Information
 
-Metadata for the binary file file dt_img_exif_metadata.rds which contains a tabular dataset with EXIF metadata of each image for the 213 annotated "target-flowers" folders discussed in the manuscript.
+Metadata for file dt_img_exif_metadata.rds which contains a tabular dataset with EXIF metadata of each image for the 213 annotated "target-flowers" folders discussed in the manuscript.
 
 It includes 460,056 observations (rows), each representing an image with associated metadata.
 
 ### Data Format
 
-The tabular dataset stored in the rds binary file is structured as a `data.table` in R, with the following 18 variables.
+The tabular dataset stored in the rds file is structured as a `data.table` in R, with the following 18 variables.
 
 1. **Date**: Date of the image capture (character string, format: YYYY-MM-DD)
 2. **Plant Folder**: Identifier for the plant species / target flower folder (character string)
