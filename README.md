@@ -1,6 +1,8 @@
 # Overview
 
-This repository contains the scripts and metadata associated with **[add final version here + URL]**
+This repository contains the scripts and metadata associated with:
+
+> Ștefan, V., Workman, A., Cobain, J. C., Rakosy, D., & Knight, T. M. (2025). Utilising affordable smartphones and open-source time-lapse photography for pollinator image collection and annotation. Journal of Pollination Ecology, 37, 1–21. https://doi.org/10.26786/1920-7603(2025)778 
 
 ## How to use this repository
 
